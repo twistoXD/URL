@@ -108,19 +108,6 @@ def getUser(user_id):
 
 
 
-def db_getLinkPrivate(user_id):
-    try:
-        con = sqlite3.connect('database.db')
-        cursor = con.cursor()
-        links = cursor.execute("""SELECT * FROM links WHERE user_id = ?""",(user_id,)).fetchall()
-        con.commit()
-        print(links)
-        return links
-    except sqlite3.Error:
-        print("Ошибка вывода ссылки")
-    finally:
-        con.close()
-
 
 def db_getLinkPublic():
     try:
