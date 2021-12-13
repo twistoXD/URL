@@ -19,6 +19,7 @@ app.config['SECRET_KEY'] = 'hgfg85thf1hr1th56t89h5fg1ht'
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+login_manager.login_message = 'Авторизуйтесь, чтобы перейти к сокращателю ссылок'
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -33,6 +34,7 @@ menu = [
 
 
 @app.route('/', methods=['POST', 'GET']) 
+@login_required
 def index(): 
     print(url_for('index'))
     links = bd.db_getLinkPublic()
