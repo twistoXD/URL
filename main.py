@@ -27,17 +27,17 @@ def load_user(user_id):
     return UserLogin().fromDB(user_id, bd)
 
 
-
 menu = [
 {'name': 'Регистрация', 'url': 'register'},
-{'name': 'Авторизация', 'url': 'login'},]
+{'name': 'Авторизация', 'url': 'login'},
+{'name': 'Личный кабинет', 'url': 'profile'},]
 
 
-@app.route('/', methods=['POST', 'GET']) 
-@login_required
+
+@app.route('/', methods=['POST', 'GET'])
 def index(): 
     print(url_for('index'))
-    links = bd.db_getLinkPublic()
+    links = bd.db_linkAll()
     if request.method == 'POST':
         url = request.form.get('link')
         link = pyshorteners.Shortener().tinyurl.short(url)
@@ -56,10 +56,10 @@ def register():
             hash = generate_password_hash(password)
             reg = bd.db_loginId(login)
             if reg == 1:
-                flash("Такой логин уже есть!")
+                flash("Такой логин уже существует")
             elif reg == 0:
                 bd.db_reg_user(login, hash)
-                flash("Вы зарегистрировались!")
+                flash("Вы успешно зарегистрировались")
                 return redirect(url_for('login'))
         else:
             flash('Пароль должен содержать не менее 8 символов')
@@ -69,35 +69,51 @@ def register():
 @app.route('/login', methods=['POST', 'GET']) 
 def login(): 
     if current_user.is_authenticated:
-        return redirect(url_for('office'))
+        return redirect(url_for('profile'))
 
     print(url_for('login'))
     if request.method == 'POST': 
-        user = bd.getUserByLogin(request.form['login']) 
+        user = bd.getLogin(request.form['login']) 
         if user and check_password_hash(user[2], request.form['password']):
             userLogin = UserLogin().create(user)
             rm = True if request.form.get('remainme') else False
             login_user(userLogin, remember=rm)
-            return redirect(request.args.get('next') or url_for('office'))
+            return redirect(request.args.get('next') or url_for('profile'))
             
         flash('Неверный логин или пароль')
      
     return render_template('login.html', title='Авторизация', menu = menu) 
 
 
-
-
-@app.route('/office',  methods=['POST', 'GET']) 
+@app.route('/profile',  methods=['POST', 'GET']) 
 @login_required
-def office(): 
+def profile(): 
     try:
         user = bd.getUser(current_user.get_id())
-        login = user[1]   
-        bd.db_short(user[0])
-        flash('')
+        login = user[1]
+        nameurl = request.form.get('nameurl')
+        url = request.form.get('link')
+        link = pyshorteners.Shortener().tinyurl.short(url)
+        pyperclip.copy(link)
+        bd.db_short(user[0], nameurl, link)
+        flash(f'Ваша новая ссылка: {link}')
     except:
-         flash('')
-    return render_template('office.html', title='Личный кабинет', login = login, menu = menu) 
+        flash('')
+
+    links = bd.db_linkForUser(user[0])
+    return render_template('profile.html', title='Личный кабинет', login = login, links = links, menu = menu)
+
+
+@app.route('/deletelink') 
+def delete(id):
+    user = bd.getUser(current_user.get_id())
+    try:
+        bd.db_deleteLink(user[0], id)
+        flash('Ссылка успешно удалена')
+        return redirect('/profile')
+    except:
+        flash('Произошла ошибка в удалении')
+
 
 
 @app.route('/logout')
