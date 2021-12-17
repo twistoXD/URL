@@ -17,11 +17,11 @@
         <input class="button" type="submit">
       </div>
     </form>
-    <div>
+   <div>
       <ul>
         <h2>Ваши ссылки</h2>
         {% for link in links %}
-          <li><a href="{{link[3]}}">{{link[3]}}</a> - {{link[2]}}
+          <li><a href="{{link[3]}}">{{link[3]}}</a> - {{link[2]}} <a href="/{{link[0]}}">Удалить</a>
         {% endfor -%}
       </ul>
     </div>
