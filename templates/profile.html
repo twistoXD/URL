@@ -1,0 +1,30 @@
+{% extends 'index.html' -%}
+  {% block content -%}
+  {{ super() }}
+    <div>
+        <h2>Здравствуйте, {{login}}!</h2>
+        </div>
+        
+    </div>
+    <form class="container" action="" method="post">
+      <div class="brand-title">Сократить ссылку</div>
+      {% for msg in get_flashed_messages() -%}
+        <h3 class="flash">{{msg}}</h3>
+      {% endfor -%}
+      <div class="inputs">
+        <p><input class="input" type="text" name="nameurl" placeholder="Назовите вашу ссылку"></p>
+        <p><input class="input" type="text" name="link" placeholder="Ссылка"></p>
+        <input class="button" type="submit">
+      </div>
+    </form>
+    <div>
+      <ul>
+        <h2>Ваши ссылки</h2>
+        {% for link in links %}
+          <li><a href="{{link[3]}}">{{link[3]}}</a> - {{link[2]}} <a href="/deletelink">Удалить</a>
+        {% endfor -%}
+      </ul>
+    </div>
+    <h3><a href="/logout">Выйти из аккаунта</a></h3>
+
+  {% endblock -%}
