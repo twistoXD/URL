@@ -104,6 +104,15 @@ def profile():
     return render_template('profile.html', title='Личный кабинет', login = login, links = links, menu = menu)
 
 
+@app.route('/<int:id>') 
+def delete(id):
+    user = bd.getUser(current_user.get_id())
+    try:
+        bd.db_deleteLink(user[0], id)
+        flash('Ссылка успешно удалена')
+        return redirect('/profile')
+    except:
+        flash('Произошла ошибка в удалении')
 
 
 
