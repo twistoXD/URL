@@ -1,7 +1,5 @@
 import sqlite3
 
-
-
 def db_create():
     try:
         con = sqlite3.connect('database.db')
@@ -15,6 +13,7 @@ def db_create():
         cursor.execute("""CREATE TABLE IF NOT EXISTS links(
             id INTEGER,
             user_id INTEGER,
+            nameurl TEXT NOT NULL,
             link TEXT NOT NULL,
             PRIMARY KEY(id AUTOINCREMENT),
             FOREIGN KEY(user_id) REFERENCES users(id));""")
@@ -78,7 +77,7 @@ def db_auth(login, password):
         con.close()
 
 
-def getUserByLogin(login):
+def getLogin(login):
     try:
         con = sqlite3.connect('database.db')
         cursor = con.cursor()
@@ -88,7 +87,7 @@ def getUserByLogin(login):
             return False   
         return res
     except sqlite3.Error as e:
-        print('Ошибка получения данных из БД - getUserByLogin - ' + str(e))
+        print('Ошибка получения данных из БД - getLogin - ' + str(e))
     return False
 
 
@@ -106,19 +105,68 @@ def getUser(user_id):
     return False
 
 
-
-
-
-def db_getLinkPublic():
+def db_short(user_id, nameurl, link):
     try:
+        print("Идёт сокращение ссылки")
         con = sqlite3.connect('database.db')
         cursor = con.cursor()
-        links = cursor.execute("""SELECT * FROM links""").fetchall()
+        cursor.execute("""INSERT INTO links (user_id, nameurl, link) VALUES(?, ?, ?)""",(user_id, nameurl, link,))
+        con.commit()
+        print("Ссылка успешно сокращена")
+    except sqlite3.Error:
+        print("Ошибка в сокращении ссылки")
+    finally:
+        con.close()
+
+
+
+def db_linkForUser(user_id):
+    try:
+        print("Ваши ссылки")
+        con = sqlite3.connect('database.db')
+        cursor = con.cursor()
+        links = cursor.execute("""SELECT * FROM links WHERE user_id = ?""",(user_id,)).fetchall()
         con.commit()
         print(links)
         return links
     except sqlite3.Error:
-        print("Ошибка вывода ссылки")
+        print("Ошибка при выводе ссылок")
     finally:
         con.close()
+
+
+
+def db_linkAll():
+    try:
+        con = sqlite3.connect('database.db')
+        cursor = con.cursor()
+        links = cursor.execute("""SELECT * FROM links WHERE id = '?'""").fetchall()
+        con.commit()
+        print(links)
+        return links
+    except sqlite3.Error:
+        print("Ошибка при выводе ссылок")
+    finally:
+        con.close()
+
+
+
+def db_deleteLink(user_id,id):
+    try:
+        print("Удаление ссылки")
+        con = sqlite3.connect('database.db')
+        cursor = con.cursor()
+        cursor.execute("""DELETE FROM links WHERE user_id = ? AND id = ?""",(user_id, id,)).fetchone()
+        con.commit()
+    except sqlite3.Error:
+        print("Ошибка при удалении ссылки")
+    finally:
+        con.close()
+
+
+
+
+
+
+
 
