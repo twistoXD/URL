@@ -151,17 +151,6 @@ def db_linkAll():
 
 
 
-def db_deleteLink(user_id,id):
-    try:
-        print("Удаление ссылки")
-        con = sqlite3.connect('database.db')
-        cursor = con.cursor()
-        cursor.execute("""DELETE FROM links WHERE user_id = ? AND id = ?""",(user_id, id,)).fetchone()
-        con.commit()
-    except sqlite3.Error:
-        print("Ошибка при удалении ссылки")
-    finally:
-        con.close()
 
 
 
